@@ -180,9 +180,10 @@ numeric_subset <- corr_subset[sapply(corr_subset, is.numeric)]
 numeric_subset_corr<-cor(numeric_subset, use="pairwise.complete.obs")
 corrplot(numeric_subset_corr, method= "color", order="hclust", addrect=8)
 ```
+
 Birthyear and age seems to be perfectly reserve-correlated :) I think we are on the right track. In the question 2.2, statements 5 and 6 seems to be correlated, which are "I have information about users that are relevant to my work" and "The information I have about users is up to date". These statements are consistent. Interestingly, birthyear an statement 4, that is "I have sufficient information about users" also seem to be a bit correlated, however not so significant to look into further.
 
-###4 - Conclusions and Discussion
+###5 - Conclusions and Discussion
 
 Even though the complete analysis of the survey is not done yet, the initial results already demonstrates interesting remarks. For instance, activities after release and specifying the requirements are the most common activities indicated by the respondents where the users are involved in software development. On the other hand, different roles/job functions show different distributions over the statements regarding, for instance, how often users are contacted, how much information is collected and the relevancy of the information. The people’s agreement with these statements further should be cross-checked with the software development activities where the users are involved. 
 
