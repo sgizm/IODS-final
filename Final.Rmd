@@ -1,0 +1,116 @@
+## Final Assignment
+08.03.2017
+
+###1 - General Description and Research Question
+This assignment includes the initial analysis of a survey that received 108 responses. The survey was designed to investigate how software companies involve users in their software development. The survey is part of a larger study that aims to improve capabilities for user involvement in software development. The main research question is to examine how methods for involving the users into development can be improved.
+
+Survey in this assignment includes two sections: 1) Background section where the demographics of the resposdents are identified and 2) User involvement state where the current state of the companies are identified. Questions can be seen as below:
+
+![](survey.png)
+
+###2 - Data Wrangling
+Data wrangling is done in Final.R file. Here is how it is look like: 
+
+``` {r}
+data <- read.csv("~/Desktop/Open Data Science/IODS-project/data_final.csv")
+View(data)
+str(data)
+dim(data)
+```
+
+Variables names are chosen to be descriptive in a way that each of them represents the options under each questions in the survey. Dimensions are 108 * 32 as there are 108 respondents. Various data types are used such as integers, factors and logical variables. 
+
+###3 - Exploration and Analysis Method
+Here will explore the dataset further and detail on how it can be analyzed. We start wtih adding the libraries we use and global variables. 
+
+``` {r include = FALSE}
+library(foreign)
+library(ggplot2)
+library(data.table)
+library(gmodels)
+POPULATION.SIZE = 108
+CURRENTYEAR <- 1900 + as.POSIXlt(Sys.Date())$year
+```
+
+To start with the demograhics, we first look at the job functions.
+``` {r fig.width=9}
+summary(data$jobfunction)
+ggplot(data, aes(x=jobfunction)) +
+  geom_bar(fill="#FF9999", colour="#FF9999") +
+  labs(x="Job function", y="Frequency")
+```
+
+We see that majority of the respondents are software developers (36 respondents), followed by managers (24) and people from operations (14) out of total 108. 
+
+Another demographics to look at could be the age distribution of the respondents:
+
+``` {r}
+summary(data$age)
+ggplot(data, aes(x=age)) + 
+  geom_histogram(aes(y=..density..),
+                 binwidth=.5,
+                 colour="black", fill="white") +
+  geom_density(alpha=.2, fill="#FF9999", colour="#FF9999")
+``` 
+
+The graph shows that age density is around 50's overall. Next we look at the worktimes for each respondents:
+
+``` {r}
+summary(data$worktime)
+ggplot(data, aes(x=worktime)) + 
+  geom_histogram(aes(y=..density..),# Histogram with density instead of count on y-axis
+                 binwidth=10,
+                 colour="black", fill="white") +
+  geom_density(alpha=.2, fill="#FF9999", colour="#FF9999")  # Overlay with transparent density plot
+```
+
+The results portray that the density makes a peak around 30 months, that would be around 2.5 years. The maximum working time seems to be 5 years, that indicates that the company is relatively young. 
+
+After taking a look at the demographic data, let's move on the the next section and start with 2.1 where we will see the activities that users are involved in the company. First, we want to create a data frame for easier exploration:
+
+``` {r include = FALSE}
+useractivities.specifying.requirements.count <- sum(data$useractivities.specifying.requirements, na.rm=TRUE)
+useractivities.designing.software.count <- sum(data$useractivities.designing.software, na.rm=TRUE)
+useractivities.implementing.software <- sum(data$useractivities.implementing.software, na.rm=TRUE)
+useractivities.testing <- sum(data$useractivities.testing, na.rm=TRUE)
+useractivities.after.release <- sum(data$useractivities.after.release, na.rm=TRUE)
+useractivities.other <- sum(data$useractivities.other, na.rm=TRUE)
+useractivities <- data.frame(Activity=data$useractivities.options,
+                             Frequency=c(
+                               useractivities.specifying.requirements.count,
+                               useractivities.designing.software.count,
+                               useractivities.implementing.software,
+                               useractivities.testing,
+                               useractivities.after.release,
+                               useractivities.other))
+```
+
+Now we can explore it with a bar graph:
+
+``` {r fig.width=9}
+ggplot(data=useractivities, aes(x=Activity, y=Frequency)) +
+  geom_bar(stat="identity", fill="#FF9999", colour="#FF9999")
+```
+
+The graph above on user activities (Question 2.1) shows that the activities performed after a software release is the most common stage indicated by the respondents where the users are involved. Specifying the requirements is second most common activity where the users are involved, and it is followed by implementing the software.
+
+Continuing with the responses to Question 2.2 where respondents were asked to rank the statements about user involvement in software development from disagreement to agreement, we again first create an convenient data frame:
+
+``` {r include = FALSE}
+userinv <- data.frame(Statement=factor(rep(data$userinv.statements, each=length(data$userinv.S1))),
+                      Rating=c(
+                        data$userinv.S1,
+                        data$userinv.S2,
+                        data$userinv.S3,
+                        data$userinv.S4,
+                        data$userinv.S5,
+                        data$userinv.S6))
+```
+
+Then we look at the data with a boxplot:
+
+``` {r fig.width=9}
+ggplot(data=userinv, aes(x=Statement, y=Rating, fill=Statement)) +
+  geom_boxplot() + guides(fill=FALSE) + coord_flip()
+```
+The figure above shows the statements about general user involvement in the companies vs. the ratings. where 1 is complete disagreement and 5 in complete agreement. We see that it was disagreed that respondents need to ask permission to contact users according to the median, whereas it was agreed that respondents know who uses the software they contribute to in their work. The other statements are on the neutral side, therefore we will need to look deeper into those in the next section. Also, we will try to understand if any significant correlations exist among the 
