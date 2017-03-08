@@ -1,7 +1,6 @@
 ---
 title: "IODS course project"
 author: "Sezin Yaman"
-email: "sezin.yaman@helsinki.fi"
 output:
   html_document:
     theme: cosmo

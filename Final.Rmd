@@ -1,3 +1,5 @@
+sezin.yaman@helsinki.fi
+
 ## Final Assignment
 08.03.2017
 
@@ -28,6 +30,9 @@ library(foreign)
 library(ggplot2)
 library(data.table)
 library(gmodels)
+library(Hmisc)
+library(corrplot)
+library(reshape2)
 POPULATION.SIZE = 108
 CURRENTYEAR <- 1900 + as.POSIXlt(Sys.Date())$year
 ```
@@ -113,4 +118,36 @@ Then we look at the data with a boxplot:
 ggplot(data=userinv, aes(x=Statement, y=Rating, fill=Statement)) +
   geom_boxplot() + guides(fill=FALSE) + coord_flip()
 ```
-The figure above shows the statements about general user involvement in the companies vs. the ratings. where 1 is complete disagreement and 5 in complete agreement. We see that it was disagreed that respondents need to ask permission to contact users according to the median, whereas it was agreed that respondents know who uses the software they contribute to in their work. The other statements are on the neutral side, therefore we will need to look deeper into those in the next section. Also, we will try to understand if any significant correlations exist among the 
+
+The figure above shows the statements about general user involvement in the companies vs. the ratings. where 1 is complete disagreement and 5 in complete agreement. We see that it was disagreed that respondents need to ask permission to contact users according to the median, whereas it was agreed that respondents know who uses the software they contribute to in their work. The other statements are on the neutral side, therefore we will need to look deeper into those in the next section. Also, we will try to understand if any significant correlations exist among the job functions, user activities and/or user involvement statements. 
+
+###4 - Further analysis and Interpretations
+
+Here, we can look into more visualizations with multiple variables in order to interpret the survey responses better. For instace, first we look into people who rated for 'user avtivities after release' with regards to job function distributions:
+
+``` {r fig.width=9}
+cc <- table(data$jobfunction, data$useractivities.after.release)
+cc<-data.frame(cc)
+ccc <- cc[cc$Var2 == "TRUE",] 
+ggplot(ccc, aes(x=Var1,y=Freq,fill=Var2))+geom_bar(stat="identity") + labs(x="Job functions",y="Frequencies", title="People who marked 'Activities After Release' for user involvement activities") + theme(plot.title = element_text(hjust = 0.5))+guides(fill=FALSE) + theme(plot.title = element_text(lineheight=.6))
+```
+
+``` {r fig.width=9}
+ggplot(userinv,aes(x=Statement,y=Rating, fill=Rating))+ geom_boxplot(aes(fill = Statement)) + guides(fill=FALSE) + coord_flip() + scale_size_continuous(range = c(0, 70)) + facet_wrap(~data$jobfunction) +  labs(x = "", y = "") #Bu oldu
+jb_names <- c(
+  'Developing software' = "Developers",
+  'Testing software' = "Testers",
+  'UX Design' = "UX designers",
+  'jobfunction#4' = "Mng",
+  'jobfunction#5' = "The",
+  'jobfunction#6' = "The O",
+  'jobfunction#7' = "The Ot"
+)
+```
+
+ggplot(data,aes(x=jobfunction,y=age, fill=jobfunction))+geom_boxplot() + guides(fill=FALSE) + coord_flip() #"job function vs. age" 2
+
+dd<-table(data$userinv.S2, jobfunction) # "I neesd permission" over job functions
+ggplot(data,aes(x=jobfunction,y=data$userinv.S2, fill=jobfunction))+geom_boxplot() + guides(fill=FALSE) + coord_flip() + labs(x="Roles",y="'I need to ask permission to contact users'")
+
+ggplot(data,aes(x=jobfunction,y=data$userinv.S3, fill=jobfunction))+geom_boxplot() + guides(fill=FALSE) + coord_flip() + labs(x="Roles",y="'I frequently have direct contact with users'") 
