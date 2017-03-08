@@ -3,8 +3,10 @@ sezin.yaman@helsinki.fi
 ## Final Assignment
 08.03.2017
 
+Github repository: https://github.com/sgizm/IODS-final
+
 ###1 - General Description and Research Question
-This assignment includes the initial analysis of a survey that received 108 responses. The survey was designed to investigate how software companies involve users in their software development. The survey is part of a larger study that aims to improve capabilities for user involvement in software development. The main research question is to examine how methods for involving the users into development can be improved.
+This assignment includes the initial analysis of a survey that received 108 responses in a software company. The survey was designed to investigate how software companies involve users in their software development. The survey is part of a larger study that aims to improve capabilities for user involvement in software development. The main research question is to examine how methods for involving the users into development can be improved.
 
 Survey in this assignment includes two sections: 1) Background section where the demographics of the resposdents are identified and 2) User involvement state where the current state of the companies are identified. Questions can be seen as below:
 
@@ -123,7 +125,15 @@ The figure above shows the statements about general user involvement in the comp
 
 ###4 - Further analysis and Interpretations
 
-Here, we can look into more visualizations with multiple variables in order to interpret the survey responses better. For instace, first we look into people who rated for 'user avtivities after release' with regards to job function distributions:
+Here, we can look into more visualizations with multiple variables in order to interpret the survey responses better.
+
+First, for instance we could look at job functions with respect to age distributions:
+
+``` {r fig.width=9}
+ggplot(data,aes(x=jobfunction,y=age, fill=jobfunction))+geom_boxplot() + guides(fill=FALSE) + coord_flip() 
+```
+
+Then, we could look into people who rated for 'user avtivities after release' with regards to job function distributions, as it was the activity ranked by the highest number of people:
 
 ``` {r fig.width=9}
 cc <- table(data$jobfunction, data$useractivities.after.release)
@@ -132,22 +142,53 @@ ccc <- cc[cc$Var2 == "TRUE",]
 ggplot(ccc, aes(x=Var1,y=Freq,fill=Var2))+geom_bar(stat="identity") + labs(x="Job functions",y="Frequencies", title="People who marked 'Activities After Release' for user involvement activities") + theme(plot.title = element_text(hjust = 0.5))+guides(fill=FALSE) + theme(plot.title = element_text(lineheight=.6))
 ```
 
+We see that software developers are the ones who ranked for this activity the most, followed by the managers. 
+
+Next, as we discussed in section 3, the same survey question have not given much insigths into the stamements. Now we can look into the all job function distribution over the responses in one graph:
+
 ``` {r fig.width=9}
-ggplot(userinv,aes(x=Statement,y=Rating, fill=Rating))+ geom_boxplot(aes(fill = Statement)) + guides(fill=FALSE) + coord_flip() + scale_size_continuous(range = c(0, 70)) + facet_wrap(~data$jobfunction) +  labs(x = "", y = "") #Bu oldu
 jb_names <- c(
   'Developing software' = "Developers",
   'Testing software' = "Testers",
   'UX Design' = "UX designers",
-  'jobfunction#4' = "Mng",
-  'jobfunction#5' = "The",
-  'jobfunction#6' = "The O",
-  'jobfunction#7' = "The Ot"
+  'Management' = "Managers",
+  'Architecture' = "Architects",
+  'Operations' = "Operators",
+  'Other' = "Others"
 )
+ggplot(userinv,aes(x=Statement,y=Rating, fill=Rating))+ geom_boxplot(aes(fill = Statement)) + guides(fill=FALSE) + coord_flip() + scale_size_continuous(range = c(0, 70)) + facet_wrap(~data$jobfunction, labeller = as_labeller(jb_names)) +  labs(x = "", y = "")
+
 ```
 
-ggplot(data,aes(x=jobfunction,y=age, fill=jobfunction))+geom_boxplot() + guides(fill=FALSE) + coord_flip() #"job function vs. age" 2
+Here we see interesting differences among different roles. For instance, developers and testers state that they do not have direct contact with users, whereas UX and arhitecture roles do have good contact. In general, since the companys had stated that testers and devvelopers receive the same information about users, results are consistent. 
 
-dd<-table(data$userinv.S2, jobfunction) # "I neesd permission" over job functions
-ggplot(data,aes(x=jobfunction,y=data$userinv.S2, fill=jobfunction))+geom_boxplot() + guides(fill=FALSE) + coord_flip() + labs(x="Roles",y="'I need to ask permission to contact users'")
 
-ggplot(data,aes(x=jobfunction,y=data$userinv.S3, fill=jobfunction))+geom_boxplot() + guides(fill=FALSE) + coord_flip() + labs(x="Roles",y="'I frequently have direct contact with users'") 
+We could also try to look at some correlations:
+
+``` {r}
+cor(data$age, data$X1.1.Which.of.the.following.most.closely.matches.your.primary.job.function..) 
+```
+
+There seem not to be a good correlation. Instead of checking each correlations manually, we can try to create an aggregated way of checking all the correlation among the numerical variables:
+
+``` {r}
+roles <- data$X1.1.Which.of.the.following.most.closely.matches.your.primary.job.function..
+corr_subset <- data[, 17:35]
+corr_subset$roles = roles
+corr_subset <- corr_subset[ ,c(ncol(corr_subset),1:(ncol(corr_subset)-1))] #adding roles column and bring it to the front
+numeric_subset <- corr_subset[sapply(corr_subset, is.numeric)]
+numeric_subset_corr<-cor(numeric_subset, use="pairwise.complete.obs")
+corrplot(numeric_subset_corr, method= "color", order="hclust", addrect=8)
+```
+Birthyear and age seems to be perfectly reserve-correlated :) I think we are on the right track. In the question 2.2, statements 5 and 6 seems to be correlated, which are "I have information about users that are relevant to my work" and "The information I have about users is up to date". These statements are consistent. Interestingly, birthyear an statement 4, that is "I have sufficient information about users" also seem to be a bit correlated, however not so significant to look into further.
+
+###4 - Conclusions and Discussion
+
+Even though the complete analysis of the survey is not done yet, the initial results already demonstrates interesting remarks. For instance, activities after release and specifying the requirements are the most common activities indicated by the respondents where the users are involved in software development. On the other hand, different roles/job functions show different distributions over the statements regarding, for instance, how often users are contacted, how much information is collected and the relevancy of the information. The people’s agreement with these statements further should be cross-checked with the software development activities where the users are involved. 
+
+The information such as testers and operators who have stated that they need permission to contact users could be used to improve communication strategies within the companies. This inference already seems to be consistent with another outcome, that is testers and developers indicate that they do not have frequent access to the users. 
+
+As the survey involved additional questions that were not yet analyzed yet, the initial results will also provide basis for cross-analysis of the whole survey. Besides, checking the correlations for the rest of the survey will validate the consistency of the respondents’ rankings as the future research. 
+
+
+
