@@ -6,13 +6,17 @@ sezin.yaman@helsinki.fi
 Github repository: https://github.com/sgizm/IODS-final
 
 ###1 - General Description and Research Question
+
 This assignment includes the initial analysis of a survey that received 108 responses in a software company. The survey was designed to investigate how software companies involve users in their software development. The survey is part of a larger study that aims to improve capabilities for user involvement in software development. The main research question is to examine how methods for involving the users into development can be improved.
 
-Survey in this assignment includes two sections: 1) Background section where the demographics of the resposdents are identified and 2) User involvement state where the current state of the companies are identified. Questions can be seen as below:
+Company representatives were involved in the process at the stage of the survey design. This allowed to identify a number of hypotheses and assumptions that needs to be checked. For instance, the developers and testers are receiving the same information about the end users, therefore their responses to the questions might follow a similar pattern. Secondly, there was a research interest to know whether managers differently than the rest of the roles think about user involvement, as their job function is not as technical as others'. Lastly, in more traditional software development usually UX department is seens as the responsible agent for involving the users. Even though modern development approaches suggest that user involvement shall be done over whole development process by different roles, it will be interesting to capture the results on this point.
+
+Survey in this assignment includes two sections: 1) Background section where the demographics of the respondents are identified, and 2) User involvement state where the current state of the companies are identified. Questions can be seen as below:
 
 ![](survey.png)
 
 ###2 - Data Wrangling
+
 Data wrangling is done in Final.R file. Here is how it is look like: 
 
 ``` {r}
@@ -25,7 +29,8 @@ dim(data)
 Variables names are chosen to be descriptive in a way that each of them represents the options under each questions in the survey. Dimensions are 108 * 32 as there are 108 respondents. Various data types are used such as integers, factors and logical variables. 
 
 ###3 - Exploration and Analysis Method
-Here will explore the dataset further and detail on how it can be analyzed. We start wtih adding the libraries we use and global variables. 
+
+Here will explore the dataset and we detail on how it can be analyzed further. We start wtih adding the libraries we use and global variables. 
 
 ``` {r include = FALSE}
 library(foreign)
@@ -47,7 +52,7 @@ ggplot(data, aes(x=jobfunction)) +
   labs(x="Job function", y="Frequency")
 ```
 
-We see that majority of the respondents are software developers (36 respondents), followed by managers (24) and people from operations (14) out of total 108. 
+We see that majority of the respondents are software developers (36 respondents), followed by managers (24) and people from operations (14) out of total 108. As the interesting questions we want to answer with the survey are related to these roles, the sample seems to be well distributed over roles.
 
 Another demographics to look at could be the age distribution of the respondents:
 
@@ -133,7 +138,7 @@ First, for instance we could look at job functions with respect to age distribut
 ggplot(data,aes(x=jobfunction,y=age, fill=jobfunction))+geom_boxplot() + guides(fill=FALSE) + coord_flip() 
 ```
 
-Then, we could look into people who rated for 'user avtivities after release' with regards to job function distributions, as it was the activity ranked by the highest number of people:
+The graph above is self-descriptive. Then, we could look into people who rated for 'user avtivities after release' with regards to job function distributions, as it was the activity ranked by the highest number of people:
 
 ``` {r fig.width=9}
 cc <- table(data$jobfunction, data$useractivities.after.release)
@@ -142,9 +147,9 @@ ccc <- cc[cc$Var2 == "TRUE",]
 ggplot(ccc, aes(x=Var1,y=Freq,fill=Var2))+geom_bar(stat="identity") + labs(x="Job functions",y="Frequencies", title="People who marked 'Activities After Release' for user involvement activities") + theme(plot.title = element_text(hjust = 0.5))+guides(fill=FALSE) + theme(plot.title = element_text(lineheight=.6))
 ```
 
-We see that software developers are the ones who ranked for this activity the most, followed by the managers. 
+We see that software developers are the ones who ranked for this activity the most, followed by the managers. This is important to learn, because we are trying to understand whether managers think about user involvement differently than more technical people in the company.
 
-Next, as we discussed in section 3, the same survey question have not given much insigths into the stamements. Now we can look into the all job function distribution over the responses in one graph:
+Next, as we discussed in section 3, the same survey question (2.2) have not given much insigths into some of the stamements. Now we can look into the all job function distribution over the responses in one graph:
 
 ``` {r fig.width=9}
 jb_names <- c(
@@ -160,16 +165,16 @@ ggplot(userinv,aes(x=Statement,y=Rating, fill=Rating))+ geom_boxplot(aes(fill = 
 
 ```
 
-Here we see interesting differences among different roles. For instance, developers and testers state that they do not have direct contact with users, whereas UX and arhitecture roles do have good contact. In general, since the companys had stated that testers and devvelopers receive the same information about users, results are consistent. 
+Here we see interesting differences among different roles. For instance, developers and testers state that they do not have direct contact with users, whereas UX and arhitecture roles do have good contact. In general, since the companys had stated that testers and devvelopers receive the same information about users, results are consistent. In addition, we do not see major difference in managers' responses with regards to the rest of the roles. Managers think that they have good access to the users and have up to date information. UX designers seem to be the closest to the users and holding updated and relevant information. They do not think that they need to ask for permission to contact users, however, they think that the information they hold might not be sufficient enough. This could indicate that they would like to improve their methods to get information about users. 
 
 
-We could also try to look at some correlations:
+We could also try to look at some correlations, here is a random one:
 
 ``` {r}
 cor(data$age, data$X1.1.Which.of.the.following.most.closely.matches.your.primary.job.function..) 
 ```
 
-There seem not to be a good correlation. Instead of checking each correlations manually, we can try to create an aggregated way of checking all the correlation among the numerical variables:
+There seem not to be a good correlation between age and different roles in the company. Instead of checking each correlations manually, we can try to create an aggregated way of checking all the correlation among the numerical variables:
 
 ``` {r}
 roles <- data$X1.1.Which.of.the.following.most.closely.matches.your.primary.job.function..
@@ -187,9 +192,9 @@ Birthyear and age seems to be perfectly reserve-correlated :) I think we are on 
 
 Even though the complete analysis of the survey is not done yet, the initial results already demonstrates interesting remarks. For instance, activities after release and specifying the requirements are the most common activities indicated by the respondents where the users are involved in software development. On the other hand, different roles/job functions show different distributions over the statements regarding, for instance, how often users are contacted, how much information is collected and the relevancy of the information. The people’s agreement with these statements further should be cross-checked with the software development activities where the users are involved. 
 
-The information such as testers and operators who have stated that they need permission to contact users could be used to improve communication strategies within the companies. This inference already seems to be consistent with another outcome, that is testers and developers indicate that they do not have frequent access to the users. 
+The information such as testers and operators who have stated that they need permission to contact users could be used to improve communication strategies within the companies. This inference already seems to be consistent with another outcome, that is testers and developers indicate that they do not have frequent access to the users. Likewise, UX designers seems to have better methods to get more sufficient information about users. All these new hypotheses could be invastigated with a secondary research, for instance with post-interviews. 
 
-As the survey involved additional questions that were not yet analyzed yet, the initial results will also provide basis for cross-analysis of the whole survey. Besides, checking the correlations for the rest of the survey will validate the consistency of the respondents’ rankings as the future research. 
+As the survey involved additional questions that were not yet analyzed yet, the initial results will also provide basis for cross-analysis of the whole survey. Besides, checking the correlations for the rest of the survey will validate the consistency of the respondents’ rankings as the future research. In conclusion, the results of the survey will be used to improve the company's tools and methods to involve users into their development. Besides, when the survey is conducted by other companies, company-wise comparisons will be done, which will suggest new improvements for overall software development in companies and in research in Finland.
 
 
 
